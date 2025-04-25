@@ -73,9 +73,14 @@ class ExampleTransferDataset(Dataset):
         self.ctrl_data_pth_config = CTRL_TYPE_INFO[self.ctrl_type]
 
         # Set up directories - only collect paths
-        video_dir = os.path.join(self.dataset_dir, "videos")
-        self.video_paths = [os.path.join(video_dir, f) for f in os.listdir(video_dir) if f.endswith(".mp4")]
-        self.t5_dir = os.path.join(self.dataset_dir, "t5_xxl")
+        if self.ctrl_type in ["hdmap", "lidar"]:
+            video_dir = os.path.join(self.dataset_dir, "videos", "front")
+            self.video_paths = [os.path.join(video_dir, f) for f in os.listdir(video_dir) if f.endswith(".mp4")]
+            self.t5_dir = os.path.join(self.dataset_dir, "t5_xxl")
+        else:
+            video_dir = os.path.join(self.dataset_dir, "videos")
+            self.video_paths = [os.path.join(video_dir, f) for f in os.listdir(video_dir) if f.endswith(".mp4")]
+            self.t5_dir = os.path.join(self.dataset_dir, "t5_xxl")
         print(f"Finish initializing dataset with {len(self.video_paths)} videos in total.")
 
         # Set up preprocessing and augmentation
