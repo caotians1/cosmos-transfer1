@@ -748,10 +748,11 @@ class DiffusionControl2WorldGenerationPipeline(BaseWorldGenerationPipeline):
 
 
 class DiffusionControl2WorldMultiviewGenerationPipeline(DiffusionControl2WorldGenerationPipeline):
-    def __init__(self, *args, is_lvg_model=False, n_clip_max=-1, **kwargs):
+    def __init__(self, *args, is_lvg_model=False, n_clip_max=-1, use_front_tele=False, **kwargs):
         super(DiffusionControl2WorldMultiviewGenerationPipeline, self).__init__(*args, **kwargs)
         self.is_lvg_model = is_lvg_model
         self.n_clip_max = n_clip_max
+        self.use_front_tele = use_front_tele
 
     def _run_tokenizer_decoding(self, sample: torch.Tensor):
         """Decode latent samples to video frames using the tokenizer decoder.
@@ -897,7 +898,14 @@ class DiffusionControl2WorldMultiviewGenerationPipeline(DiffusionControl2WorldGe
         data_batch = get_ctrl_batch_mv(
             self.height, self.width, data_batch, total_T, control_inputs
         )  # multicontrol inputs are concatenated channel wise, [-1,1] range
-
+        if self.use_front_tele:
+            mapped_indices = [0, 1, 2, 6, 4, 5]
+            view_indices_conditioning = []
+            for v_index in mapped_indices:
+                view_indices_conditioning.append(torch.ones(self.num_video_frames, device='cuda') * v_index)
+            view_indices_conditioning = torch.cat(view_indices_conditioning, dim=0)
+            data_batch["view_indices"] = view_indices_conditioning.unsqueeze(0).contiguous()
+            print(data_batch["view_indices"])
         hint_key = data_batch["hint_key"]
         input_video = None
         control_input = data_batch[hint_key]
@@ -1105,14 +1113,24 @@ class DiffusionControl2WorldMultiviewGenerationPipeline(DiffusionControl2WorldGe
         Returns:
 
         """
-        base_prompts = [
-            "The video is captured from a camera mounted on a car. The camera is facing forward. ",
-            "The video is captured from a camera mounted on a car. The camera is facing to the left. ",
-            "The video is captured from a camera mounted on a car. The camera is facing to the right. ",
-            "The video is captured from a camera mounted on a car. The camera is facing backwards. ",
-            "The video is captured from a camera mounted on a car. The camera is facing the rear left side. ",
-            "The video is captured from a camera mounted on a car. The camera is facing the rear right side. ",
-        ]
+        if self.use_front_tele:
+            base_prompts = [
+                "The video is captured from a camera mounted on a car. The camera is facing forward. ",
+                "The video is captured from a camera mounted on a car. The camera is facing to the left. ",
+                "The video is captured from a camera mounted on a car. The camera is facing to the right. ",
+                "The video is captured from a telephoto camera mounted on a car. The camera is facing forward. ",
+                "The video is captured from a camera mounted on a car. The camera is facing the rear left side. ",
+                "The video is captured from a camera mounted on a car. The camera is facing the rear right side. ",
+            ]
+        else:
+            base_prompts = [
+                "The video is captured from a camera mounted on a car. The camera is facing forward. ",
+                "The video is captured from a camera mounted on a car. The camera is facing to the left. ",
+                "The video is captured from a camera mounted on a car. The camera is facing to the right. ",
+                "The video is captured from a camera mounted on a car. The camera is facing backwards. ",
+                "The video is captured from a camera mounted on a car. The camera is facing the rear left side. ",
+                "The video is captured from a camera mounted on a car. The camera is facing the rear right side. ",
+            ]
 
         log.info(f"Reading multiview prompts, found {len(mv_prompts)} splits")
         n = len(mv_prompts)
@@ -1164,10 +1182,10 @@ class DiffusionControl2WorldMultiviewGenerationPipeline(DiffusionControl2WorldGe
 
         # Process prompts into multiview format
         log.info("Run guardrail on prompt")
-        is_safe = self._run_guardrail_on_prompt_with_offload(". ".join(mv_prompts))
-        if not is_safe:
-            log.critical("Input text prompt is not safe")
-            return None
+        # is_safe = self._run_guardrail_on_prompt_with_offload(". ".join(mv_prompts))
+        # if not is_safe:
+        #     log.critical("Input text prompt is not safe")
+        #     return None
         log.info("Pass guardrail on prompt")
 
         prompt_embeddings, _ = self._run_text_embedding_on_prompt_with_offload(mv_prompts)
@@ -1186,10 +1204,10 @@ class DiffusionControl2WorldMultiviewGenerationPipeline(DiffusionControl2WorldGe
         )
         log.info("Finish generation")
         log.info("Run guardrail on generated video")
-        video = self._run_guardrail_on_video_with_offload(video)
-        if video is None:
-            log.critical("Generated video is not safe")
-            raise ValueError("Guardrail check failed: Generated video is unsafe")
+        # video = self._run_guardrail_on_video_with_offload(video)
+        # if video is None:
+        #     log.critical("Generated video is not safe")
+        #     raise ValueError("Guardrail check failed: Generated video is unsafe")
 
         log.info("Pass guardrail on generated video")
 

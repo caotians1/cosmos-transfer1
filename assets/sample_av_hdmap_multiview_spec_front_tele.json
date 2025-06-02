@@ -1,0 +1,14 @@
+{
+    "hdmap": {
+        "control_weight": 1,
+        "input_control": [
+            "/lustre/fsw/portfolios/nvr/projects/nvr_torontoai_holodeck/cosmos-mads-dataset-l3clipgt-render-mv/hdmap/ftheta_camera_front_wide_120fov/ff9f4f69-9e2a-4259-8e5b-ee8dcfff899c_6041443700000_6041463700000_0.mp4",
+            "/lustre/fsw/portfolios/nvr/projects/nvr_torontoai_holodeck/cosmos-mads-dataset-l3clipgt-render-mv/hdmap/ftheta_camera_cross_left_120fov/ff9f4f69-9e2a-4259-8e5b-ee8dcfff899c_6041443700000_6041463700000_0.mp4",
+            "/lustre/fsw/portfolios/nvr/projects/nvr_torontoai_holodeck/cosmos-mads-dataset-l3clipgt-render-mv/hdmap/ftheta_camera_cross_right_120fov/ff9f4f69-9e2a-4259-8e5b-ee8dcfff899c_6041443700000_6041463700000_0.mp4",
+            "/lustre/fsw/portfolios/nvr/projects/nvr_torontoai_holodeck/cosmos-mads-dataset-l3clipgt-render-mv/hdmap/ftheta_camera_front_tele_30fov/ff9f4f69-9e2a-4259-8e5b-ee8dcfff899c_6041443700000_6041463700000_0.mp4",
+            "/lustre/fsw/portfolios/nvr/projects/nvr_torontoai_holodeck/cosmos-mads-dataset-l3clipgt-render-mv/hdmap/ftheta_camera_rear_left_70fov/ff9f4f69-9e2a-4259-8e5b-ee8dcfff899c_6041443700000_6041463700000_0.mp4",
+            "/lustre/fsw/portfolios/nvr/projects/nvr_torontoai_holodeck/cosmos-mads-dataset-l3clipgt-render-mv/hdmap/ftheta_camera_rear_right_70fov/ff9f4f69-9e2a-4259-8e5b-ee8dcfff899c_6041443700000_6041463700000_0.mp4"
+        ],
+        "ckpt_path": "hdmap_sv2mv_t2v_7cam/fsdp_checkpoints/iter_000023000_ema_model_only.pt"
+    }
+}

@@ -84,6 +84,12 @@ def parse_arguments() -> argparse.Namespace:
         help="Text prompt for generating right camera view video",
     )
     parser.add_argument(
+        "--prompt_front_tele",
+        type=str,
+        default="The video is captured from a telephoto camera mounted on a car. The camera is facing forward.",
+        help="Text prompt for generating right camera view video",
+    )
+    parser.add_argument(
         "--view_condition_video",
         type=str,
         default="",
@@ -166,7 +172,11 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="Offload prompt upsampler model after inference",
     )
-
+    parser.add_argument(
+        "--use_front_tele",
+        action="store_true",
+        help="use front tele",
+    )
     cmd_args = parser.parse_args()
 
     # Load and parse JSON input
@@ -271,14 +281,24 @@ def demo(cfg, control_inputs):
         device_rank = distributed.get_rank(process_group)
 
     preprocessors = Preprocessors()
-    prompts = [
-        cfg.prompt,
-        cfg.prompt_left,
-        cfg.prompt_right,
-        cfg.prompt_back,
-        cfg.prompt_back_left,
-        cfg.prompt_back_right,
-    ]
+    if args.use_front_tele:
+        prompts = [
+            cfg.prompt,
+            cfg.prompt_left,
+            cfg.prompt_right,
+            cfg.prompt_front_tele,
+            cfg.prompt_back_left,
+            cfg.prompt_back_right,
+        ]
+    else:
+        prompts = [
+            cfg.prompt,
+            cfg.prompt_left,
+            cfg.prompt_right,
+            cfg.prompt_back,
+            cfg.prompt_back_left,
+            cfg.prompt_back_right,
+        ]
 
     if cfg.initial_condition_video:
         cfg.is_lvg_model = True
@@ -308,6 +328,7 @@ def demo(cfg, control_inputs):
         width=1024,
         is_lvg_model=cfg.is_lvg_model,
         n_clip_max=cfg.n_clip_max,
+        use_front_tele=cfg.use_front_tele
     )
 
     os.makedirs(cfg.video_save_folder, exist_ok=True)

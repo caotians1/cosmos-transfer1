@@ -19,10 +19,9 @@ import numpy as np
 import torch
 import transformer_engine as te
 from einops import rearrange
-from torch import Tensor, nn
+from torch import nn
 from torch.utils.checkpoint import checkpoint
-from transformer_engine.pytorch.attention.dot_product_attention.dot_product_attention import DotProductAttention
-from transformer_engine.pytorch.attention.rope import apply_rotary_pos_emb
+from transformer_engine.pytorch.attention import DotProductAttention, apply_rotary_pos_emb
 
 # ---------------------- Feed Forward Network -----------------------
 
